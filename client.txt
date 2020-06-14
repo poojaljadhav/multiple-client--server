@@ -1,0 +1,58 @@
+#include<stdio.h>  
+#include<stdlib.h>  
+#include<sys/types.h>  
+#include<sys/socket.h>  
+#include<string.h>
+#include<netinet/in.h>  
+#include<netdb.h>
+#include<arpa/inet.h>
+#include<unistd.h>
+  
+#define PORT 4444 
+  
+int main() {  
+ struct sockaddr_in addr;  
+ int clientSocket, ret;  
+ char buffer[1024];  
+ char * serverAddr;
+
+ 
+ clientSocket = socket(AF_INET, SOCK_STREAM, 0);  
+ if (clientSocket < 0) {  
+  printf("Error creating socket!\n");  
+  exit(1);  
+ }  
+ printf("Socket created...\n");   
+
+ memset(&addr, '\0', sizeof(addr));  
+ addr.sin_family = AF_INET;  
+ addr.sin_addr.s_addr = inet_addr('127.0.0.1');
+ addr.sin_port =htons(PORT);     
+
+ ret = connect(clientSocket, (struct sockaddr *) &addr, sizeof(addr));  
+ if (ret < 0) {  
+  printf("Error connecting to the server!\n");  
+  exit(1);  
+ }  
+ printf("Connected to the server...\n");  
+
+while(1){
+    printf("client: \t");
+    scanf("%s",&buffer[0]);
+    send(clientSocket,buffer,strlen(buffer),0);
+    if(strcmp(buffer, ":exit")==0){
+        close(clientSocket);
+        printf("disconnect from server");
+        exit(1);
+    }
+    if(recv(clientSocket,buffer,1024,0)<0){
+        printf("error in sending \n");
+    }
+    else{
+        printf("Server: \t%s\n",buffer);
+        
+    }
+}
+return 0;
+}
+
